@@ -27,7 +27,8 @@ SECRET_KEY = "django-insecure-rhoc9l&1ek3o)wnapn1e4e4l@9e00s-njr0!(iq=%y^a^5d^&c
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://mywebsite-blank-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://eoanalitica-effective-goggles-r9vvwggg9q7f5gr-8000.preview.app.github.dev/',
+'https://eoanalitica-effective-goggles-r9vvwggg9q7f5gr-8000.preview.app.github.dev']
 
 # Application definition
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = "project.urls"
 
