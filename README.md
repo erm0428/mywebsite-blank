@@ -22,7 +22,7 @@ Nota: Abrir terminal en VSC con CMD en lugar de PowerShell
 - Navegar a la carpeta del proyecto `$ cd <folder>`
 - Crear un nuevo ambiente de trabajo `$ python -m venv <venv-name>` (\<venv-name>=venv)
 - Crear nuevo archivo ".env" `$ type NUL > .env` (Windows) `$ touch .env` (Linux)
-- Activar ambiente `$ .\<venv-name>\Scripts\activate`
+- Activar ambiente `$ .\<venv-name>\Scripts\activate` (Windows) or `source <venv-name>/bin/activate` (Linux)
 - Instalar librerías necesarias `$ pip install -r requirements.txt`
 
 # 💼 Crear proyecto 
