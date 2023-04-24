@@ -27,7 +27,8 @@ SECRET_KEY = "django-insecure-rhoc9l&1ek3o)wnapn1e4e4l@9e00s-njr0!(iq=%y^a^5d^&c
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://mywebsite-blank-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://mywebsite-blank-production.up.railway.app',
+                        'https://eoanalitica-effective-goggles-r9vvwggg9q7f5gr-8000.preview.app.github.dev']
 
 # Application definition
 
