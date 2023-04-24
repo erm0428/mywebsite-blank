@@ -15,15 +15,22 @@ Adaptado de: https://github.com/lucrae/django-cheat-sheet/
 - 🪪 Usar la página de administrador
 </s>
 - Agregar: 🌷 Modificar vista IRIS
+- [OPCIONAL] 🚀 Distribución (deployment)
+- [OPCIONAL] 🏡 Agregar vista CASA
 
 
 # 🐍 Inicializar un nuevo ambiente de trabajo
 Nota: Abrir terminal en VSC con CMD en lugar de PowerShell
+<s>
 - Navegar a la carpeta del proyecto `$ cd <folder>`
+</s>
 - Crear un nuevo ambiente de trabajo `$ python -m venv <venv-name>` (\<venv-name>=venv)
+<s>
 - Crear nuevo archivo ".env" `$ type NUL > .env` (Windows) `$ touch .env` (Linux)
-- Activar ambiente `$ .\<venv-name>\Scripts\activate` (Windows) or `source <venv-name>/bin/activate` (Linux)
-- Instalar librerías necesarias `$ pip install -r requirements.txt`
+</s>
+- Activar ambiente `$ .\<venv-name>\Scripts\activate` (Windows) `source <venv-name>/bin/activate` (Linux) 
+- Mover el archivo `requirements.txt` afuera de la carpeta `temp` 
+- Instalar librerías necesarias `$ pip install -r requirements.txt` 
 
 # 💼 Crear proyecto 
 - Crear proyecto `$ django-admin startproject <project-name>` (\<venv-name>=project)
@@ -140,8 +147,8 @@ urlpatterns = [
 # 🎨 Crear nueva plantilla (`Template`)
 - Crea carpeta `static/` dentro de la carpeta contenedora del proyecto `.`
 - Crear carpetas `css/`, `js/` e `img/` dentro de `static/`
-- Copiar archivos de imágenes `*.png` y `*.ico` en carpeta `static/images/`
-- Copiar modelo de aprendizaje automático `classification_svc_sklearn_1_2_1.pickle` en carpeta `static/`
+- Copiar archivos de imágenes `*.png` y `*.ico` en carpeta `static/img/`
+- Copiar archivos `*.pickle` (como los modelos de aprendizaje automático) en carpeta `static/`
 - Copiar archivos `*.css` en carpeta `css/`
 - Copiar archivos `*.js` en carpeta `js/`
 
@@ -176,7 +183,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static'] 
 ```
 
-- Mover archivos `index.html` e `iris.html` a `<projec>/<app-name>/templates/<app-name>` (crear carpetas)
+- Mover archivos `*.html` a `<projec>/<app-name>/templates/<app-name>` (crear carpetas)
 
 ```
 project/
@@ -219,9 +226,9 @@ import numpy as np
 
 
 # Cargar modelo guardado
-filename = 'static/classification_svc_sklearn_1_2_1.pickle'
+filename = 'static/classification_svc_sklearn_1_2_2.pickle'
 with open(filename, 'rb') as f:
-    loaded_model = pickle.load(f)
+    loaded_model_classification = pickle.load(f)
 
 
 # Vista Index
@@ -244,7 +251,7 @@ def iris(request):
 
         lista_iris = [slength, swidth, plength, pwidth]
         x_new = np.array([lista_iris])
-        y_pred = int(loaded_model.predict(x_new))
+        y_pred = int(loaded_model_classification.predict(x_new))
 
         dictionary = {0:('Iris Setosa', 'iris-setosa.png'), 
                       1:('Iris Versicolor', 'iris-versicolor.png'), 
@@ -293,3 +300,214 @@ CSRF_TRUSTED_ORIGINS = ['*']  # Aquí agregas el dominio ej.  ....preview.app.gi
 CSRF_TRUSTED_ORIGINS = ['https://...']  # Aquí agregas la dirección que te aparece a ti
 ```
 - Vuelve a correr el servidor `$ python manage.py runserver`
+
+
+# 🚀 [OPCIONAL] Distribución (deployment)
+
+- Asegurarse que las librerías de `gunicorn` y `whitenoise` estén presentes en el archivo de `requirements.txt`
+- Mover el archivo de `requirements.txt` a la carpeta del proyecto
+- Crear archivo `Procfile` (sin extensión) dentro de la carpeta del proyecto
+- Crear archivo `runtime.txt` dentro de la carpeta del proyecto
+
+```
+project/
+    portfolio_app/
+    project/
+    static/
+    ...
+    Procfile            <---- Crear
+    requirements.txt
+    runtime.txt         <---- Crear
+```
+
+- Agregar `web: gunicorn <project-name>.wsgi` al archivo `Procfile`:
+
+```
+web: gunicorn 'project.wsgi' 
+```
+
+- Agregar `Python -3.10.4` al archivo `runtime.txt`:
+
+```
+Python -3.10.4 
+```
+
+- Agregar middleware de librería `whitenoise` y definir `STATICFILES_STORAGE` en `<project-name>/settings.py` (después de `MIDDLEWARE`):
+
+```python
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # <---- Aquí
+    ...
+]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' # <--- Aquí
+```
+
+- Definir `STATIC_ROOT` en `<project-name>/settings.py`:
+
+```python
+# Primero importar librería os al inicio del archivo settings.py
+import os                   # <---- Aquí
+from pathlib import Path
+```
+
+```python
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static'] 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # <--- Aquí
+```
+- Recolectar archivos estáticos en `STATIC_ROOT` con:
+- `$ python manage.py collectstatic`
+
+- - Modificar en `<project-name>/settings.py`: (primero se tiene que implementar en Railway para que te genere un dominio)
+
+```python
+CSRF_TRUSTED_ORIGINS = ['https://...']  # Aquí agregas el dominio de Railway, ejemplo: https://mywebsite-production-a8ce.up.railway.app/
+```
+
+# 🏡 [OPCIONAL] Crear vista CASAS 
+
+1.- Copiar `iris.html` y renombrarlo como `casa.html`
+
+2.- En `casa.html`, reemplazar la sección de contenido y modificar el formulario para contar con los campos: `['OverallQual', 'GrLivArea', '1stFlrSF', 'FullBath', 'YearBuilt']`
+
+```html
+
+<!-- Contenido -->
+<div class="container">
+
+    <!-- Nueva fila -->
+    <div class="row">
+
+        <!-- Columna izquierda vacía -->
+        <div class="col-3"></div>
+
+        <!-- Columna central -->
+        <div class="col-6 mt-5">
+            <div class="row">
+                <br>
+                <!-- Formulario -->
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Campo 1: Calidad general del 1 al 10 (OverallQual) -->
+                    <div class="form-floating mb-3">
+                        <input type="number" name="OverallQual" class="form-control" id="OverallQual" step="1" placeholder="8" value="" min="1" max="10">
+                        <label for="OverallQual">Calidad general (1 al 10) (ej. 8)</label>  
+                    </div>
+
+                    <!-- Campo 2: Superficie habitable (GrLivArea) -->
+                    <div class="form-floating mb-3">
+                        <input type="number" name="GrLivArea" class="form-control" id="GrLivArea" step="1" placeholder="1660" value="">
+                        <label for="GrLivArea">Superficie habitable (ej. 1660)</label> 
+                    </div>
+
+                    <!-- Campo 3: Área en pies cuadrados del 1er piso (1stFlrSF) -->
+                    <div class="form-floating mb-3">
+                        <input type="number" name="1stFlrSF" class="form-control" id="1stFlrSF" step="1" placeholder="1500" value="">
+                        <label for="1stFlrSF">Área 1er piso en pies^3 (ej. 1500)</label> 
+                    </div>
+
+                    <!-- Campo 5: Número de baños (FullBath) -->
+                    <div class="form-floating mb-3">
+                        <input type="number" name="FullBath" class="form-control" id="FullBath" step="1" placeholder="2" value="">
+                        <label for="FullBath">Número de baños (ej. 2)</label> 
+                    </div>
+
+                    <!-- Campo 5: Año de construcción (YearBuilt) -->
+                    <div class="form-floating mb-3">
+                        <input type="number" name="YearBuilt" class="form-control" id="YearBuilt" step="1" placeholder="2006" value="">
+                        <label for="YearBuilt">Año de construcción (ej. 2006)</label> 
+                    </div>
+
+                    <!-- Botón submit -->
+                    <button type="submit" class="btn btn-info text-center w-100">Estimar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Columna derecha vacía -->
+        <div class="col-3"></div>
+
+    </div>
+
+    <br>
+
+    <!-- Nueva fila -->
+    <!-- Etiqueta con la predicción (solo aparece si existe la etiqueta) -->
+    {% if pred_label %}
+    <div class="row text-center mt-5">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="alert alert-info" role="alert">
+                <h4>{{ pred_label }}</h4>
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+    {% endif %}
+
+</div>
+
+```
+
+- Agregar vista "casa" a `<app-name>/views.py` (no olvidar cargar el modelo `static/regression_rf_sklearn_1_2_2.pickle`)
+
+
+```python
+from django.shortcuts import render
+import pickle
+import numpy as np
+
+
+# Cargar modelo guardado
+...
+
+filename = 'static/regression_rf_sklearn_1_2_2.pickle'
+with open(filename, 'rb') as f:
+    loaded_model_regression = pickle.load(f)
+
+# Vista Index
+def index(request):
+    ...
+
+# Vista Iris
+def iris(request):
+    ...
+
+# Vista Casa
+def casa(request):
+
+    pred_label = None
+
+    if request.method == "POST":
+
+        overall_quality = int(request.POST.get('OverallQual'))
+        above_ground_living_area = int(request.POST.get('GrLivArea'))
+        first_floor_sf = int(request.POST.get('1stFlrSF'))
+        full_bath = int(request.POST.get('FullBath'))
+        year_built = int(request.POST.get('YearBuilt'))
+
+        lista_casa = [overall_quality, above_ground_living_area, first_floor_sf, full_bath, year_built]
+        x_new = np.array([lista_casa])
+        y_pred = float(loaded_model_regression.predict(x_new))   
+
+    template = 'portfolio_app/casa.html'
+    context = {'pred_label': y_pred}
+    
+    return render(request, template, context)
+```
+
+- Definir URL para vista `casa`. En `<app-name>\urls.py` agregar:
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('iris/', views.iris, name='iris'),
+    path('casa/', views.casa, name='casa'), # <----  
+]
+
+```
